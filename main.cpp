@@ -78,66 +78,70 @@ void rle::write_length(ofstream &fout, uint64_t in)
 void rle::compress(bool drle, char* inpath, char* outpath)
 {
 	ifstream fin(inpath, ifstream::binary);
-	ofstream fout(outpath, ios::binary | ios::out);
 
 	if (!fin)
 		cout << "Failed compressing file" << endl;
 	else
 	{
-		uint64_t repval = 0;
-		uint8_t curr = 0;
-		int16_t prev = -1;
-		uint8_t dcur = 0;
-		uint8_t dprv = 0;
-
-		// get file length
-		fin.seekg(0, ios::end);
-		streampos length = fin.tellg();
-		fin.seekg(0, ios::beg);
-
-		// Compress
-		while (fin.tellg() < length)
+		ofstream fout(outpath, ios::binary | ios::out);
+		if (fout.is_open())
 		{
-			if (drle)
+			uint64_t repval = 0;
+			uint8_t curr = 0;
+			int16_t prev = -1;
+			uint8_t dcur = 0;
+			uint8_t dprv = 0;
+
+			// get file length
+			fin.seekg(0, ios::end);
+			streampos length = fin.tellg();
+			fin.seekg(0, ios::beg);
+
+			// Compress
+			while (fin.tellg() < length)
 			{
-				fin.read(reinterpret_cast<char*>(&dcur), sizeof(uint8_t));
-				curr = ((dcur - dprv) + 256) & 0xff;
-				dprv = dcur;
-			}
-			else
-			{
-				fin.read(reinterpret_cast<char*>(&curr), sizeof(uint8_t));
-			}
-			if (curr != prev) // new value
-			{
-				if (repval > 0)
+				if (drle)
 				{
-					write_length(fout, repval - 1);
-					repval = 0;
+					fin.read(reinterpret_cast<char*>(&dcur), sizeof(uint8_t));
+					curr = ((dcur - dprv) + 256) & 0xff;
+					dprv = dcur;
 				}
-				fout.write(reinterpret_cast<char*>(&curr), sizeof(uint8_t));
-			}
-			else // repeated value
-			{
-				if (repval <= 0)
+				else
 				{
+					fin.read(reinterpret_cast<char*>(&curr), sizeof(uint8_t));
+				}
+				if (curr != prev) // new value
+				{
+					if (repval > 0)
+					{
+						write_length(fout, repval - 1);
+						repval = 0;
+					}
 					fout.write(reinterpret_cast<char*>(&curr), sizeof(uint8_t));
 				}
-				repval += 1;
+				else // repeated value
+				{
+					if (repval <= 0)
+					{
+						fout.write(reinterpret_cast<char*>(&curr), sizeof(uint8_t));
+					}
+					repval += 1;
+				}
+				prev = curr;
 			}
-			prev = curr;
-		}
 
-		// Flush RLE repeat
-		if (repval > 0)
-		{
-			write_length(fout, repval - 1);
-			repval = 0;
+			// Flush RLE repeat
+			if (repval > 0)
+			{
+				write_length(fout, repval - 1);
+				repval = 0;
+			}
+			fin.close();
+			fout.close();
+			cout << "Success compressing file" << endl;
 		}
-		fin.close();
-		fout.close();
-
-		cout << "Success compressing file" << endl;
+		else
+			cout << "Failed compressing file" << endl;
 	}
 }
 
@@ -146,59 +150,63 @@ void rle::compress(bool drle, char* inpath, char* outpath)
 void rle::decompress(bool drle, char* inpath, char* outpath)
 {
 	ifstream fin(inpath, ifstream::binary);
-	ofstream fout(outpath, ios::binary | ios::out);
 
 	if (!fin)
 		cout << "Failed decompressing file" << endl;
 	else
 	{
-		uint64_t repval = 0;
-		uint8_t curr = 0;
-		int16_t prev = -1;
-		uint8_t dcur = 0;
-		uint8_t buf = 0;
-
-		// get file length
-		fin.seekg (0, ios::end);
-		streampos length = fin.tellg();
-		fin.seekg (0, ios::beg);
-
-		// Decompress
-		while (fin.tellg() < length)
+		ofstream fout(outpath, ios::binary | ios::out);
+		if (fout.is_open())
 		{
-			if (drle)
+			uint64_t repval = 0;
+			uint8_t curr = 0;
+			int16_t prev = -1;
+			uint8_t dcur = 0;
+			uint8_t buf = 0;
+
+			// get file length
+			fin.seekg(0, ios::end);
+			streampos length = fin.tellg();
+			fin.seekg(0, ios::beg);
+
+			// Decompress
+			while (fin.tellg() < length)
 			{
-				fin.read(reinterpret_cast<char*>(&dcur), sizeof(uint8_t));
-				curr = (dcur + curr) & 0xff;
-			}
-			else
-			{
-				fin.read(reinterpret_cast<char*>(&curr), sizeof(uint8_t));
-			}
-			buf = drle ? dcur : curr;
-			fout.write(reinterpret_cast<char*>(&curr), sizeof(uint8_t));
-			if (buf == prev) // repeated value
-			{
-				repval = read_length(fin);
-				if (repval > 0)
+				if (drle)
 				{
-					while(repval)
+					fin.read(reinterpret_cast<char*>(&dcur), sizeof(uint8_t));
+					curr = (dcur + curr) & 0xff;
+				}
+				else
+				{
+					fin.read(reinterpret_cast<char*>(&curr), sizeof(uint8_t));
+				}
+				buf = drle ? dcur : curr;
+				fout.write(reinterpret_cast<char*>(&curr), sizeof(uint8_t));
+				if (buf == prev) // repeated value
+				{
+					repval = read_length(fin);
+					if (repval > 0)
 					{
-						if (drle)
+						while (repval)
 						{
-							curr += dcur;
+							if (drle)
+							{
+								curr += dcur;
+							}
+							fout.write(reinterpret_cast<char*>(&curr), sizeof(uint8_t));
+							repval--;
 						}
-						fout.write(reinterpret_cast<char*>(&curr), sizeof(uint8_t));
-						repval--;
 					}
 				}
+				prev = buf;
 			}
-			prev = buf;
+			fin.close();
+			fout.close();
+			cout << "Success decompressing file" << endl;
 		}
-		fin.close();
-		fout.close();
-
-		cout << "Success decompressing file" << endl;
+		else
+			cout << "Failed decompressing file" << endl;
 	}
 }
 
