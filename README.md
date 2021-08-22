@@ -1,2 +1,2 @@
 # RLE
-RLE compression/decompression
+RLE compressor/decompressor
