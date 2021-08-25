@@ -136,12 +136,12 @@ void rle::compress(bool drle, char* inpath, char* outpath)
 				write_length(fout, repval - 1);
 				repval = 0;
 			}
-			fin.close();
 			fout.close();
 			cout << "Success compressing file" << endl;
 		}
 		else
 			cout << "Failed compressing file" << endl;
+		fin.close();
 	}
 }
 
@@ -201,12 +201,12 @@ void rle::decompress(bool drle, char* inpath, char* outpath)
 				}
 				prev = buf;
 			}
-			fin.close();
 			fout.close();
 			cout << "Success decompressing file" << endl;
 		}
 		else
 			cout << "Failed decompressing file" << endl;
+		fin.close();
 	}
 }
 
