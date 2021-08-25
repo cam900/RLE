@@ -3,6 +3,7 @@ RLE compressor/decompressor
 
 ## Compression/Decompression example:
 
+### Normal RLE algorithm ###
 
 01 23 45 45       = 01 23 45 45 (00)
 
@@ -11,6 +12,12 @@ RLE compressor/decompressor
 89 89 89 89 89 89 = 89 89 (04)
 
 01 01 01 01 01 23 = 01 01 (03) 23
+
+### Delta RLE algorithm ###
+
+01 23 45 67 89 89 = 01 22 22 (02) 00
+
+12 12 12 23 23 23 23 23 = 12 00 00 (00) 11 00 00 (02)
 
 The number in parentheses (Length value, Variable size) is the number of times to repeat the previous byte.
 
