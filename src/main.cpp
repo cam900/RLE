@@ -1,4 +1,8 @@
-// MATRIX RLE Compressor/Decompressor
+/*
+	MATRIX RLE Compressor/Decompressor
+	Copyright (c) 2021-present cam900 and contributors
+	See details on https://gitlab.com/cam900/RLE/-/blob/main/LICENSE
+*/
 
 #include <string>
 
@@ -8,7 +12,7 @@ int main(int argc, char** argv)
 {
 	std::cout << std::endl;
 	std::cout << "MATRIX RLE Compressor/Decompressor" << std::endl;
-	std::cout << "https://github.com/cam900/RLE" << std::endl;
+	std::cout << "https://gitlab.com/cam900/RLE" << std::endl;
 	std::cout << std::endl;
 	librle r;
 	librle::librle_status ret;

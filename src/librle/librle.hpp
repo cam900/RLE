@@ -1,4 +1,9 @@
-// MATRIX RLE Compressor/Decompressor
+/*
+	MATRIX RLE Compressor/Decompressor
+	Copyright (c) 2021-present cam900 and contributors
+	See details on https://gitlab.com/cam900/RLE/-/blob/main/LICENSE
+*/
+
 #ifndef _LIBRLE_HPP
 #define _LIBRLE_HPP
 
