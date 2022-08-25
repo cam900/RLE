@@ -1,6 +1,9 @@
 # RLE
 RLE compressor/decompressor
 
+## Important
+This repository is archive purpose only, development repository is now migrated to [here](https://gitlab.com/cam900/RLE).
+
 ## Compression/Decompression example:
 
 ### Normal RLE algorithm ###
